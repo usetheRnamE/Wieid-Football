@@ -15,22 +15,40 @@ namespace Player
         // move when unpaused (use event system)
 
         [HideInInspector] public static PlayerMovement playerInstance;
+
         private void Awake()
         {
             playerInstance = this;
 
-            Restart();
+            Restart();           
         }
-        public void PlayerMove()
+        private void Update()
         {
-            if (Input.GetAxis("Horizontal") != 0)
-            {
-                xInputVector = Vector2.right * Input.GetAxis("Horizontal") * moveAcc * Time.deltaTime;
+            PlayerMoves();
+        }
+        /*  public void PlayerMove()
+          {
+              if (Input.GetKeyDown(KeyCode.D)) xInputVector = Vector2.right * moveAcc * Time.deltaTime;
 
-                clampedVector = Vector3.ClampMagnitude(new Vector3(xInputVector.x,0, startPoint.position.z), maxSpeed);
+              else if (Input.GetKeyDown(KeyCode.S)) xInputVector = Vector2.left * moveAcc * Time.deltaTime;
 
-                transform.Translate(clampedVector);
-            }               
+              else xInputVector = Vector2.zero;
+
+              clampedVector = Vector3.ClampMagnitude(new Vector3(xInputVector.x, 0, startPoint.position.z), maxSpeed);
+
+              transform.Translate(clampedVector);
+          }*/
+        private void PlayerMoves()
+        {
+            if (Input.GetKey(KeyCode.D)) xInputVector = Vector2.right * moveAcc * Time.deltaTime;
+  
+            else if (Input.GetKey(KeyCode.A)) xInputVector = Vector2.left * moveAcc * Time.deltaTime;
+
+            else xInputVector = Vector2.zero;
+
+            clampedVector = Vector3.ClampMagnitude(new Vector3(xInputVector.x, 0, startPoint.position.z), maxSpeed);
+
+            transform.Translate(clampedVector);
         }
         private void Restart()
         {
