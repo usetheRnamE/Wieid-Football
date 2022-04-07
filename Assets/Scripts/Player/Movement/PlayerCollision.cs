@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Ball;
+using System;
 
 namespace Player
 {
@@ -11,6 +12,7 @@ namespace Player
 
         private Vector2 curPosition;
 
+        private float minContactRadius = 0.05f;
         private void Update()
         {
             CheckCollision();
@@ -26,8 +28,14 @@ namespace Player
 
             curPosition = transform.position;
 
-            if (curPosition.x + transform.localScale.x <= borderPoints[1].position.x 
-                && curPosition.x >= borderPoints[0].position.x - transform.localScale.x) PlayerMovement.playerInstance.PlayerMove();
+            if (curPosition.x + transform.localScale.x * .5 <= borderPoints[1].position.x
+                && curPosition.x - transform.localScale.x * .5 >= borderPoints[0].position.x) PlayerMovement.playerInstance.PlayerMove();
+
+            else if(Math.Abs(curPosition.x + transform.localScale.x * .5 - borderPoints[1].position.x) <= minContactRadius) 
+                PlayerMovement.playerInstance.gameObject.transform.position = new Vector3((float)(-curPosition.x + transform.localScale.x *.5), curPosition.y);
+
+            else if (Math.Abs(curPosition.x - transform.localScale.x * .5 -  borderPoints[0].position.x) <= minContactRadius)
+                PlayerMovement.playerInstance.gameObject.transform.position = new Vector3((float)(-curPosition.x - transform.localScale.x * .5), curPosition.y);
         }
     }
 }

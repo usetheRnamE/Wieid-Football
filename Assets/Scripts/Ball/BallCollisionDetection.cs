@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Ball
 
         private Vector2 curPosition;
 
+        float minAllowableRaius = 0.05f;
         private void Update()
         {
             CollisionDetect();
@@ -19,14 +21,14 @@ namespace Ball
         {
             curPosition = transform.position;
 
-                if (curPosition.x >= borderPoints[1].position.x || curPosition.x <= borderPoints[0].position.x) BallMovement.instance.OnBallCollide(0); 
-                else if (curPosition.y >= borderPoints[1].position.y || curPosition.y <= borderPoints[0].position.y) BallMovement.instance.OnBallCollide(1);
+                if (Math.Abs(curPosition.x - borderPoints[1].position.x) <= minAllowableRaius || Math.Abs(curPosition.x - borderPoints[0].position.x) <= minAllowableRaius) BallMovement.instance.OnBallCollide(0); 
+                else if (Math.Abs(curPosition.y - borderPoints[1].position.y) <= minAllowableRaius || Math.Abs(curPosition.y - borderPoints[0].position.y) <= minAllowableRaius) BallMovement.instance.OnBallCollide(1);
             
         }
 
 
         /* private void CollisionAction(sbyte XorY)
-         {
+         { 
              switch (XorY)
              {
                  case 0:
