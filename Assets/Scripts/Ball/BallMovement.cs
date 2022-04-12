@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 using Random = UnityEngine.Random;
+using GameOverSystem;
 
 namespace Ball
 {
@@ -17,6 +16,11 @@ namespace Ball
 
         [HideInInspector] public static BallMovement instance;
 
+        private float scaleChanger = 4, timeToBump = 0.1f, speedOgBumping = 50;
+        private Vector3 defaultScale;
+
+        private bool isGameOver = false;
+
         private void OnEnable()
         {
             instance = this;
@@ -24,9 +28,16 @@ namespace Ball
 
         private void Awake()
         {
+            defaultScale = transform.localScale;
+
             zCurValue = transform.position.z;
             turnVector = Vector3.one;
 
+            GOEventManager.GOEvent += OnGameOver;
+        }
+
+        private void Start()
+        {
             if (!isBlueStart)
             {
                 randomVector = new Vector3(Random.RandomRange(0f, 1f), -1, 0);
@@ -41,10 +52,10 @@ namespace Ball
 
         private void Update()
         {
-            BallMove();
+            if(! isGameOver) BallMove();
         }
 
-        void BallMove()
+        private void BallMove()
         {
             moveVector = randomVector * ballAcc * Time.deltaTime;
 
@@ -55,6 +66,8 @@ namespace Ball
         
         public void OnBallCollide(byte XorY)
         {
+
+            StartCoroutine(OnCollideBump());
 
             switch (XorY)
                 {
@@ -67,13 +80,29 @@ namespace Ball
                 }
                 //ballVector = Vector2.one;                       
         }
+        IEnumerator OnCollideBump()
+        {
+            Vector3 scaleChangeKoef = transform.localScale / scaleChanger;
 
+            transform.localScale = Vector3.Lerp(transform.localScale, transform.localScale - scaleChangeKoef, Time.deltaTime * speedOgBumping);
+            
+            yield return new WaitForSeconds(timeToBump);
 
-        
+            while(transform.localScale != defaultScale) 
+                transform.localScale = Vector3.Lerp(transform.localScale, defaultScale, Time.deltaTime * speedOgBumping);
 
-   
+            StopCoroutine(OnCollideBump());
+        }
 
+        private void OnGameOver()
+        {
+            isGameOver = true;
+        }
 
+        private void OnDisable()
+        {
+            GOEventManager.GOEvent -= OnGameOver;
+        }
         /* private void OnCollisionEnter2D(Collision2D collision)
          {
              switch (collision.gameObject.tag)

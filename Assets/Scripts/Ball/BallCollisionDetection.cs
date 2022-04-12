@@ -1,7 +1,5 @@
 using Player;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ball
@@ -12,44 +10,52 @@ namespace Ball
 
         private Vector2 curPosition;
 
-        float minAllowableRaius = 0.05f;
+        float ballRadius;
         private void Update()
         {
             curPosition = transform.position;
+
+            ballRadius = transform.localScale.y * .5f;
 
             CollisionDetect();
             ClampBallIntoBounds();
         }
         private void CollisionDetect()
         {
-                if (Math.Abs(curPosition.x - borderPoints[1].position.x) <= minAllowableRaius 
-                || Math.Abs(curPosition.x - borderPoints[0].position.x) <= minAllowableRaius) BallMovement.instance.OnBallCollide(0); 
-                else if (Math.Abs(curPosition.y - borderPoints[1].position.y) <= minAllowableRaius 
-                || Math.Abs(curPosition.y - borderPoints[0].position.y) <= minAllowableRaius) BallMovement.instance.OnBallCollide(1);
+                if (Math.Abs(curPosition.x - borderPoints[1].position.x) <= ballRadius
+                || Math.Abs(curPosition.x - borderPoints[0].position.x) <= ballRadius) BallMovement.instance.OnBallCollide(0); 
+                else if (Math.Abs(curPosition.y - borderPoints[1].position.y) <= ballRadius
+                || Math.Abs(curPosition.y - borderPoints[0].position.y) <= ballRadius) BallMovement.instance.OnBallCollide(1);
 
-            Vector3 playerPosition = PlayerMovement.playerInstance.transform.position;
-            PlayersCollisionDetection(playerPosition);
+            if (PlayerMovement.playerInstance != null)
+            {
+                Vector3 playerPosition = PlayerMovement.playerInstance.transform.position;
+                PlayersCollisionDetection(playerPosition);
+            }
 
-            Vector3 AIPosition = AIMovement.AIInstance.transform.position;
-            PlayersCollisionDetection(AIPosition);
-        
+            if (AIMovement.AIInstance != null)
+            {
+                Vector3 AIPosition = AIMovement.AIInstance.transform.position;
+                PlayersCollisionDetection(AIPosition);
+            }       
 
             /*  else if((AIPosition.y <= transform.position.y + transform.localScale.y &&
                 AIPosition.y >= transform.position.y - transform.localScale.y &&
                 AIPosition.x <= transform.position.x + transform.localScale.x &&
                 AIPosition.x >= transform.position.x - transform.localScale.x)) BallMovement.instance.OnBallCollide(0);*/
         }
-        private void PlayersCollisionDetection(Vector3 playerPos)
+        private void PlayersCollisionDetection(Vector3 colVector)
         {
-            if (playerPos.y <= transform.position.y + transform.localScale.y &&
-              playerPos.y >= transform.position.y - transform.localScale.y &&
-              playerPos.x <= transform.position.x + transform.localScale.x &&
-              playerPos.x >= transform.position.x - transform.localScale.x) BallMovement.instance.OnBallCollide(1);
+            if (colVector.y <= transform.position.y + transform.localScale.y &&
+              colVector.y >= transform.position.y - transform.localScale.y &&
+              colVector.x <= transform.position.x + transform.localScale.x &&
+              colVector.x >= transform.position.x - transform.localScale.x) BallMovement.instance.OnBallCollide(1);
         }
+
         private void ClampBallIntoBounds()
         {
-            curPosition.x = Mathf.Clamp(curPosition.x, borderPoints[0].position.x, borderPoints[1].position.x);
-            curPosition.y = Mathf.Clamp(curPosition.y, borderPoints[0].position.y, borderPoints[1].position.y);
+            curPosition.x = Mathf.Clamp(curPosition.x, borderPoints[0].position.x + ballRadius, borderPoints[1].position.x - ballRadius);
+            curPosition.y = Mathf.Clamp(curPosition.y, borderPoints[0].position.y + ballRadius, borderPoints[1].position.y - ballRadius);
 
             transform.position = curPosition;
         }
